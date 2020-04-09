@@ -50,10 +50,12 @@ const loader = (options) => {
     var rootFS = parseFloat(getComputedStyle(document.documentElement).fontSize)
     var minFontsize = 12
     var fs = 12
+    var styleText = ''
     while (fs / rootValue * rootFS < minFontsize) {
-      rt.style.setProperty('--font-size-' + fs, '12px')
+      styleText += '--font-size-' + fs + ':12px;'
       fs++
     }
+    rt.style = styleText
   }
   adaptiveFS()
   var timer
@@ -67,7 +69,7 @@ class Plugin {
   apply(compiler) {
     compiler.hooks.compilation.tap('adaptiveFontsize.Plugin', (compilation) => {
       compilation.hooks.htmlWebpackPluginAfterHtmlProcessing.tapAsync('adaptiveFontsize.Plugin', (data, cb) => {
-        const script = `<script>(function(){var d=navigator.userAgent;var a=d.indexOf("compatible")>-1&&d.indexOf("MSIE")>-1;var c=d.indexOf("Edge")>-1&&!a;var f=d.indexOf("Trident")>-1&&d.indexOf("rv:11.0")>-1;var e=d.indexOf("Chrome")>-1;if(a||c||f||e){return}function b(){var k=${rtVal};var j=document.documentElement;var i=parseFloat(getComputedStyle(document.documentElement).fontSize);var l=12;var h=12;while(h/k*i<l){j.style.setProperty("--font-size-"+h,"12px");h++}}b();var g;window.addEventListener("resize",function(){clearTimeout(g);g=setTimeout(b,300)})})();</script>`
+        const script = `<script>(function(){var d=navigator.userAgent;var a=d.indexOf("compatible")>-1&&d.indexOf("MSIE")>-1;var c=d.indexOf("Edge")>-1&&!a;var f=d.indexOf("Trident")>-1&&d.indexOf("rv:11.0")>-1;var e=d.indexOf("Chrome")>-1;if(a||c||f||e){return}function b(){var k=${rtVal};var j=document.documentElement;var i=parseFloat(getComputedStyle(document.documentElement).fontSize);var l=12;var h=12;var m="";while(h/k*i<l){m+="--font-size-"+h+":12px;";h++}j.style=m}b();var g;window.addEventListener("resize",function(){clearTimeout(g);g=setTimeout(b,300)})})();</script>`
         data.html = data.html.replace('</head>', `${script}</head>`)
         cb(null, data)
       })
