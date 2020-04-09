@@ -63,15 +63,12 @@ const loader = (options) => {
   })
 })()
 */
-const cheerio = require('cheerio')
 class Plugin {
   apply(compiler) {
     compiler.hooks.compilation.tap('adaptiveFontsize.Plugin', (compilation) => {
       compilation.hooks.htmlWebpackPluginAfterHtmlProcessing.tapAsync('adaptiveFontsize.Plugin', (data, cb) => {
-        const $ = cheerio.load(data.html)
-        $(`<script>(function(){var d=navigator.userAgent;var a=d.indexOf("compatible")>-1&&d.indexOf("MSIE")>-1;var c=d.indexOf("Edge")>-1&&!a;var f=d.indexOf("Trident")>-1&&d.indexOf("rv:11.0")>-1;var e=d.indexOf("Chrome")>-1;if(a||c||f||e){return}function b(){var k=${rtVal};var j=document.documentElement;var i=parseFloat(getComputedStyle(document.documentElement).fontSize);var l=12;var h=12;while(h/k*i<l){j.style.setProperty("--font-size-"+h,"12px");h++}}b();var g;window.addEventListener("resize",function(){clearTimeout(g);g=setTimeout(b,300)})})();</script>`)
-          .appendTo('head')
-        data.html = $.html()
+        const script = `<script>(function(){var d=navigator.userAgent;var a=d.indexOf("compatible")>-1&&d.indexOf("MSIE")>-1;var c=d.indexOf("Edge")>-1&&!a;var f=d.indexOf("Trident")>-1&&d.indexOf("rv:11.0")>-1;var e=d.indexOf("Chrome")>-1;if(a||c||f||e){return}function b(){var k=${rtVal};var j=document.documentElement;var i=parseFloat(getComputedStyle(document.documentElement).fontSize);var l=12;var h=12;while(h/k*i<l){j.style.setProperty("--font-size-"+h,"12px");h++}}b();var g;window.addEventListener("resize",function(){clearTimeout(g);g=setTimeout(b,300)})})();</script>`
+        data.html = data.html.replace('</head>', `${script}</head>`)
         cb(null, data)
       })
     })
